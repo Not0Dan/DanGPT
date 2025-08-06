@@ -29,7 +29,9 @@
 ### Create .env file in backend/:
 
 PORT=5000
+
 OLLAMA_MODEL=llama3:8b (or whatever model you choose to use)
+
 AUTH_TOKEN=your_secret_token
 
 ### Start the backend server:
@@ -45,6 +47,7 @@ AUTH_TOKEN=your_secret_token
 ###Create .env file in frontend/:
 
 REACT_APP_API_URL=http://localhost:5000
+
 REACT_APP_AUTH_TOKEN=your_secret_token
 
 ### Start the React app:
