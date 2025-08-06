@@ -26,7 +26,7 @@ function App() {
 
   return (
     <div style={{ padding: '2rem' }}>
-      <h1>Ollama Chatbot</h1>
+      <h1>DanGPT</h1>
       <textarea rows="4" value={input} onChange={(e) => setInput(e.target.value)} />
       <br />
       <button onClick={sendMessage}>Send</button>
