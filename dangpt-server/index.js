@@ -11,7 +11,7 @@ const AUTH_TOKEN = process.env.AUTH_TOKEN;
 app.use(cors());
 app.use(express.json());
 
-// Middleware: simple token-based auth
+// Middleware: simple token-based auth, makes sure its connected to client
 app.use((req, res, next) => {
   const token = req.headers['authorization'];
   if (token !== `Bearer ${AUTH_TOKEN}`) {
