@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL;
 const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
@@ -33,34 +32,51 @@ function App() {
   };
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
+  if (!input.trim()) return;
 
-    setMessages((msgs) => [...msgs, { role: 'user', text: input }]);
+  setMessages((msgs) => [...msgs, { role: 'user', text: input }]);
+  setInput('');
+  if (textareaRef.current) {
+    textareaRef.current.style.height = 'auto';
+  }
+  scrollToBottom();
 
-    try {
-      const res = await axios.post(
-        `${API_URL}/api/chat`,
-        { message: input },
-        {
-          headers: {
-            Authorization: `Bearer ${AUTH_TOKEN}`,
-          },
-        }
-      );
+  //using a placeholder for the streaming bot message
+  setMessages((msgs) => [...msgs, { role: 'bot', text: '' }]);
 
-      setMessages((msgs) => [...msgs, { role: 'bot', text: res.data.response }]);
-    } catch (err) {
-      setMessages((msgs) => [...msgs, { role: 'bot', text: 'Error: ' + err.message }]);
+  try {
+    const response = await fetch(`${API_URL}/api/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${AUTH_TOKEN}`,
+      },
+      body: JSON.stringify({ message: input }),
+    });
+
+    if (!response.body) throw new Error('No response body');
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let botText = '';
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      botText += decoder.decode(value, { stream: true });
+
+      //update the last danGPT message as the stream progresses
+      setMessages((msgs) => {
+        const updated = [...msgs];
+        updated[updated.length - 1] = { role: 'bot', text: botText };
+        return updated;
+      });
     }
-
-    setInput('');
-    // reset textarea height after clearing input **** takes a while because of the message response
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-    }
-
-    scrollToBottom();
-  };
+  } catch (err) {
+    setMessages((msgs) => [...msgs, { role: 'bot', text: 'Error: ' + err.message }]);
+  }
+  scrollToBottom();
+};
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
