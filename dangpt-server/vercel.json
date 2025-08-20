@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "dangpt-server/index.js", "use": "@vercel/node" },
+    { "src": "dangpt-client/package.json", "use": "@vercel/static-build", "config": { "distDir": "build" } }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/dangpt-server/index.js" },
+    { "src": "/(.*)", "dest": "/dangpt-client/build/$1" }
+  ]
+}
